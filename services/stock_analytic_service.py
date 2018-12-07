@@ -11,11 +11,13 @@ import matplotlib.pyplot as plt
 
 class StockAnalyticService:
 
-    def __init__(self, stock_code, past_day=250, predict_future_day=250, technical_only=True):
+    def __init__(self, stock_code, past_day=250, predict_future_day=250, technical_only=True, dropout=0.2):
         self.stock_code = stock_code
         self.technical_only = technical_only
         self.past_day = past_day
         self.predict_future_day = predict_future_day
+        self.dropout = dropout
+
         self.scaler = MinMaxScaler()
         self.resultScaler = MinMaxScaler()
         self.stock_scraper_service = StockScraperService()
@@ -88,7 +90,7 @@ class StockAnalyticService:
                 self.normalized_adj_close.iloc[i+self.past_day:i+self.past_day+self.predict_future_day]["adj_close"]))
             
             self.Real_Predict.append(np.array(
-                self.normalized_data.iloc[i+self.past_day:i+self.past_day+self.predict_future_day])) #[excludePctChange]))
+                self.normalized_data.iloc[i+self.past_day - 50:i+self.past_day+self.predict_future_day - 50])) #[excludePctChange]))
 
         # self.X_train = np.array(self.normalized_data.values[0: -predict_future_day])
         # self.Y_train = np.array(self.normalized_data["adj_close"].values[predict_future_day:])
@@ -135,12 +137,13 @@ class StockAnalyticService:
     def buildModel(self):
         shape = self.X_train.shape
         self.model = Sequential()
-        self.model.add(
-            LSTM(10, input_length=shape[1], input_dim=shape[2], return_sequences=True))
+
+        self.model.add(LSTM(20, input_shape=(shape[1], shape[2]), return_sequences=True))
 
         self.model.add(TimeDistributed(Dense(1)))
         self.model.compile(loss="mse", optimizer="adam")
         self.model.summary()
+
         return self
 
     def train(self):
@@ -172,7 +175,13 @@ class StockAnalyticService:
         realPredict = self.model.predict(self.Real_Predict)
 
         # plt.plot(trainPredict[0])
+        
+        # plt.plot(testPredict[-1])
+        # plt.plot(self.Y_val[-1])
+        # plt.plot(realPredict[-1]);
+        
         plt.plot(self.resultScaler.inverse_transform(testPredict[-1]))
         plt.plot(self.resultScaler.inverse_transform(self.Y_val[-1]))
         plt.plot(self.resultScaler.inverse_transform(realPredict[-1]));
+
         plt.show()

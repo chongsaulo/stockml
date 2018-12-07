@@ -9,7 +9,7 @@ from ta import *
 
 class StockScraperService:
 
-    earliest_date = '2000-01-03'
+    earliest_date = '2001-01-03'
 
     def __init__(self):
         yf.pdr_override()
@@ -116,6 +116,7 @@ class StockScraperService:
 
         # df['high50'] =  df['high'].rolling(50).max()
         # df['low50'] =  df['low'].rolling(50).max()
+
         df = add_all_ta_features(
             df,
             "open",
