@@ -170,7 +170,7 @@ class StockScraperService:
             if len(daily_fundamental.index) is not 0:
                 master.update(daily_fundamental)
 
-            master = master[['open', 'high', 'low', 'adj_close', 'volume'] + list(daily_fundamental.columns)]
+            # master = master[['open', 'high', 'low', 'close', 'adj_close', 'volume'] + list(daily_fundamental.columns)]
 
         master = self.apply_technical_indicators(master)
 
